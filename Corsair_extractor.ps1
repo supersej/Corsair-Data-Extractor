@@ -57,7 +57,12 @@ while (1) {
 	$latest_csv_file = $all_csv_files | Sort-Object -Property LastWriteTime -Descending | select -first 1
 
         $last_line = (get-content $latest_csv_file -Tail 1) -replace ("°C","") -replace ("RPM","")
-	$csv_header = $csv_header -replace ("Commander PRO Temp #","Temp") -replace ("Commander PRO Fan #","Fan")
+	      $csv_header = $csv_header `
+          -replace ("Commander PRO Temp #","Temp")`
+          -replace ("Commander PRO Fan #","Fan")`
+          -replace ("Commander PRO 12V Voltage","12V") `
+          -replace ("Commander PRO 5V Voltage","5V") `
+          -replace ("Commander PRO 3.3V Voltage","3.3V") 
         $make_csv = $csv_header + "`n"+$last_line
         $reading = $make_csv | convertfrom-csv
         $reading | Add-Member -MemberType NoteProperty -Name "Filesize" -Value (get-item $latest_csv_file).Length
