@@ -25,7 +25,7 @@ Get-Content -Path "settings.ps1" | ForEach-Object {
 try {$all_csv_files = Get-ChildItem -path $csv_folder -filter "*.csv"}
 catch {write-error "Found no csv files in $($csv_folder) to process"; break}
 
-$latest_csv_file = $all_csv_files | sort -Property LastWriteTime -Descending | select -first 1
+$latest_csv_file = $all_csv_files | Sort-Object -Property LastWriteTime -Descending | Select-Object -first 1
 $old_csv_files = (compare-object $all_csv_files $latest_csv_file | where-object {$_.Sideindicator -eq "<="}).Inputobject
 if ($old_csv_files.fullname.count -gt 0) {
   try {remove-item $old_csv_files.fullname}
@@ -47,6 +47,12 @@ $TopicMap = @{
   Temp2 = "corsair/sensors/temp2"
   Temp3 = "corsair/sensors/temp3"
   Temp4 = "corsair/sensors/temp4"
+  Temp5 = "corsair/sensors/temp5"
+  Temp6 = "corsair/sensors/temp6"
+  Voltage12V = "corsair/sensors/12v"
+  Voltage5V = "corsair/sensors/5v"
+  Voltage3V3 = "corsair/sensors/3v3"
+  Timestamp = "corsair/sensors/timestamp"
 }
 
 #Loop forever
@@ -54,7 +60,7 @@ while (1) {
     #measure-command {
         try {$all_csv_files = Get-ChildItem -Path $csv_folder -filter "*.csv"}
 	catch {write-error "Found no csv files in $($csv_folder) to process"; break}
-	$latest_csv_file = $all_csv_files | Sort-Object -Property LastWriteTime -Descending | select -first 1
+	$latest_csv_file = $all_csv_files | Sort-Object -Property LastWriteTime -Descending | Select-Object -first 1
 
         $last_line = (get-content $latest_csv_file -Tail 1) -replace ("°C","") -replace ("RPM","")
 	      $csv_header = $csv_header `
@@ -62,7 +68,7 @@ while (1) {
           -replace ("Commander PRO Fan #","Fan")`
           -replace ("Commander PRO 12V Voltage","12V") `
           -replace ("Commander PRO 5V Voltage","5V") `
-          -replace ("Commander PRO 3.3V Voltage","3.3V") 
+          -replace ("Commander PRO 3.3V Voltage","3V3") 
         $make_csv = $csv_header + "`n"+$last_line
         $reading = $make_csv | convertfrom-csv
         $reading | Add-Member -MemberType NoteProperty -Name "Filesize" -Value (get-item $latest_csv_file).Length
