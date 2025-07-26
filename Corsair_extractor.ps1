@@ -22,7 +22,7 @@ Get-Content -Path "settings.ps1" | ForEach-Object {
     }
 }
 
-try {$all_csv_files = gci $csv_folder -filter "*.csv"}
+try {$all_csv_files = Get-ChildItem -path $csv_folder -filter "*.csv"}
 catch {write-error "Found no csv files in $($csv_folder) to process"; break}
 
 $latest_csv_file = $all_csv_files | sort -Property LastWriteTime -Descending | select -first 1
@@ -34,7 +34,7 @@ if ($old_csv_files.fullname.count -gt 0) {
 
 
 #Read first line
-$csv_header = Get-Content $latest_csv_file | select -first 1
+$csv_header = Get-Content $latest_csv_file | Select-Object -first 1
 
 $TopicMap = @{
   Fan1 = "corsair/sensors/fan1"
@@ -52,9 +52,9 @@ $TopicMap = @{
 #Loop forever
 while (1) {
     #measure-command {
-        try {$all_csv_files = gci $csv_folder -filter "*.csv"}
+        try {$all_csv_files = Get-ChildItem -Path $csv_folder -filter "*.csv"}
 	catch {write-error "Found no csv files in $($csv_folder) to process"; break}
-	$latest_csv_file = $all_csv_files | sort -Property LastWriteTime -Descending | select -first 1
+	$latest_csv_file = $all_csv_files | Sort-Object -Property LastWriteTime -Descending | select -first 1
 
         $last_line = (get-content $latest_csv_file -Tail 1) -replace ("°C","") -replace ("RPM","")
 	$csv_header = $csv_header -replace ("Commander PRO Temp #","Temp") -replace ("Commander PRO Fan #","Fan")
